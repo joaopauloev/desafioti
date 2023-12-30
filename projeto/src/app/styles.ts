@@ -7,4 +7,8 @@ export const MainBody = styled.div`
     align-items: center;
     height: 100vh;
     gap: 16px;
+    padding: 0;
+    .title{
+        color: #DA70D6;
+    }
 `
