@@ -3,12 +3,10 @@ import { Poppins } from "next/font/google";
 import StyledComponentsRegistry from "./_lib/registry";
 import { UserProvider } from "./utils/userContext";
 import { ProductProvider } from "@/app/utils/productContex";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 const poppins = Poppins({ weight: "500", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Desafio Ti Saude",
+  title: "Desafio Ti Saúde",
 };
 
 export default function RootLayout({
