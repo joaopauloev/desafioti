@@ -303,11 +303,12 @@ const ProductsPage = () => {
                 <InboxOutlined />
               </p>
               <p className="ant-upload-text">
-                Click or drag file to this area to upload
+                Clique ou arraste o arquivo para esta área e fazer o upload
               </p>
               <p className="ant-upload-hint">
-                Support for a single or bulk upload. Strictly prohibited from
-                uploading company data or other banned files.
+              Suporte para upload único ou em massa. 
+              Estritamente proibido o upload de dados 
+              da empresa ou outros arquivos proibidos.
               </p>
             </Upload.Dragger>
           </Form.Item>
