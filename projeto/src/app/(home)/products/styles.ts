@@ -10,6 +10,7 @@ export const ProductMainBody = styled.div`
   .ant-input {
     width: 200px !important;
   }
+
 `;
 
 export const ProductGrid = styled.div`

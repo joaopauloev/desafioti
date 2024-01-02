@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, Input, Form, message, Button } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
@@ -57,6 +57,14 @@ export default function LoginPage() {
       console.error("Erro:", error);
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("tokens");
+    if (token) {
+      router.push("/users");
+    }
+  }, [router]);
+
   return (
     <ThemeProvider theme={theme}>
       <S.MainBody>

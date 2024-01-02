@@ -3,6 +3,8 @@ import { Poppins } from "next/font/google";
 import StyledComponentsRegistry from "./_lib/registry";
 import { UserProvider } from "./utils/userContext";
 import { ProductProvider } from "@/app/utils/productContex";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 const poppins = Poppins({ weight: "500", subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -17,11 +19,14 @@ export default function RootLayout({
   return (
     <UserProvider>
       <ProductProvider>
-      <html lang="en" style={{ padding: 0, margin: 0 }}>
-        <body className={poppins.className} style={{ padding: 0, margin: 0 }}>
-          <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
-        </body>
-      </html>
+        <html lang="en" style={{ padding: 0, margin: 0 }}>
+          <head>
+            <link rel="icon" href="./favicon.ico" sizes="any"/>
+          </head>
+          <body className={poppins.className} style={{ padding: 0, margin: 0 }}>
+            <StyledComponentsRegistry>{children}</StyledComponentsRegistry>
+          </body>
+        </html>
       </ProductProvider>
     </UserProvider>
   );

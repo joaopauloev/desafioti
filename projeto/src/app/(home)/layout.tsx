@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import { Button, Tabs, TabsProps } from "antd";
+import { Button, Dropdown, Tabs, TabsProps } from "antd";
 import { useRouter, usePathname } from "next/navigation";
 import axios from "axios";
 import * as S from "./styles";
@@ -9,6 +9,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useUser } from "@/app/utils/userContext";
 import { getAccessToken, updateAccessToken } from "@/app/utils/tokenManager";
 import { User } from "@/app/interfaces/user";
+import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
 
 interface ModalContextProps {
   isModalVisible: boolean;
@@ -75,6 +76,14 @@ export default function HomeLayout({
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("tokens");
+
+    if (!token) {
+      router.push("/");
+    }
+  }, [router]);
+
+  useEffect(() => {
     const fetchProfile = async () => {
       try {
         const accessToken = getAccessToken();
@@ -105,6 +114,11 @@ export default function HomeLayout({
     fetchProfile();
   }, [setUser]);
 
+  const handleLogout = () => {
+    localStorage.removeItem('tokens');
+    router.push('/');
+  };
+
   return (
     <ModalContext.Provider
       value={{
@@ -119,24 +133,45 @@ export default function HomeLayout({
       <S.MainBody>
         <S.Header>
           Desafio Ti.Saude
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 8,
+          <Dropdown
+            trigger={["click"]}
+            menu={{
+              items: [
+                {
+                  label: "Perfil",
+                  key: "1",
+                  icon: <UserOutlined />,
+                  style: { color: "#590082" },
+                  onClick: () => router.push("/profile"),
+                },
+                {
+                  label: "Sair",
+                  key: "2",
+                  icon: <LogoutOutlined />,
+                  style: { color: "red" },
+                  onClick: () => {handleLogout()},
+                },
+              ],
             }}
           >
-            <span>{user?.name}</span>
-            <img
-              src={user?.avatar ?? ""}
-              alt="user-avatar"
-              width={50}
-              height={50}
-              style={{ borderRadius: "50%" }}
-              onClick={() => router.push("/profile")}
-            />
-          </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <span>{user?.name}</span>
+              <img
+                src={user?.avatar ?? ""}
+                alt="user-avatar"
+                width={50}
+                height={50}
+                style={{ borderRadius: "50%" }}
+              />
+            </div>
+          </Dropdown>
         </S.Header>
         {path === "/users" || path === "/products" ? (
           <S.TabBox>

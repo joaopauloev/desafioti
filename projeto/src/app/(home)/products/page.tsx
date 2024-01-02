@@ -12,11 +12,12 @@ import {
   Button,
   UploadProps,
   Checkbox,
+  Select,
 } from "antd";
 import * as S from "./styles";
 import { useModal } from "../layout";
 import { getAccessToken } from "../../utils/tokenManager";
-import { Product } from "@/app/interfaces/product";
+import { Category, Product } from "@/app/interfaces/product";
 import { useProducts } from "@/app/utils/productContex";
 import { DeleteOutlined, EditOutlined, InboxOutlined } from "@ant-design/icons";
 import { UploadFile } from "antd/lib/upload/interface";
@@ -50,6 +51,7 @@ const ProductsPage = () => {
   const { products, fetchProducts, allProducts, setProducts } = useProducts();
 
   const [filterValues, setFilterValues] = useState<FilterValues>({});
+  const [category, setCategory] = useState([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [showEdit, setShowEdit] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -91,13 +93,26 @@ const ProductsPage = () => {
     fetchProducts(currentPage, productsPerPage);
   }, [currentPage, fetchProducts]);
 
+  useEffect(() => {
+    const getCategory = async () => {
+      try {
+        const response = await axios.get(
+          `https://api.escuelajs.co/api/v1/categories/`
+        );
+        setCategory(response.data);
+      } catch (error: any) {
+        message.error("Erro ao buscar a categoria:", error.message);
+      }
+    };
+    getCategory();
+  }, []);
+
   const modalContext = useModal();
   if (!modalContext) {
     return null;
   }
 
-  const { isProductModalVisible, showProductModal, handleProductCancel } =
-    modalContext;
+  const { isProductModalVisible, handleProductCancel } = modalContext;
 
   const handleSearchWithFilters = async () => {
     let apiUrl = "https://api.escuelajs.co/api/v1/products?";
@@ -110,7 +125,7 @@ const ProductsPage = () => {
 
     try {
       const response = await axios.get(apiUrl);
-      setProducts(response.data); // atualize o estado dos produtos
+      setProducts(response.data);
     } catch (error) {
       console.error("Erro ao buscar produtos com filtros:", error);
     }
@@ -133,24 +148,20 @@ const ProductsPage = () => {
   };
 
   const handleOpenEdit = (product: Product) => {
+    setToBeEdited(product)
+    editProductform.setFieldsValue({
+      title: product.title,
+      price: product.price,
+      description: product.description,
+      categoryId: product.category.id,
+      images: product.images,
+    });
     setShowEdit(!showEdit);
-    setToBeEdited(product);
   };
 
   const handleCancelEdit = () => {
     setShowEdit(!showEdit);
-    setToBeEdited({
-      id: 0,
-      title: "",
-      price: 0,
-      description: "",
-      category: {
-        id: 0,
-        name: "",
-        image: "",
-      },
-      images: [""],
-    });
+    editProductform.resetFields();
   };
 
   const handleEdit = async (values: ProductEditFormData) => {
@@ -238,10 +249,10 @@ const ProductsPage = () => {
     name: "file",
     multiple: true,
     action: "https://api.escuelajs.co/api/v1/files/upload",
+    fileList,
     onChange(info) {
       const newFileList = info.fileList.map((file) => {
         if (file.response && file.response.location) {
-          console.log(file.response);
           file.url = file.response.location;
           fileList.push(file.response.location);
         }
@@ -292,10 +303,21 @@ const ProductsPage = () => {
           </Form.Item>
           <Form.Item
             name="categoryId"
-            label="ID da Categoria"
+            label="Categoria"
             rules={[{ required: true }]}
           >
-            <Input />
+            <Select
+              placeholder="Selecione uma categoria"
+              style={{ width: "100%" }}
+              allowClear
+              options={
+                category &&
+                category.map((category: Category) => ({
+                  value: category.id,
+                  label: category.name,
+                }))
+              }
+            />
           </Form.Item>
           <Form.Item name="images" label="Imagens" rules={[{ required: true }]}>
             <Upload.Dragger {...uploadProps}>
@@ -303,12 +325,10 @@ const ProductsPage = () => {
                 <InboxOutlined />
               </p>
               <p className="ant-upload-text">
-                Clique ou arraste o arquivo para esta área e fazer o upload
+                Clique ou arraste o arquivo para esta área para fazer o upload
               </p>
               <p className="ant-upload-hint">
-              Suporte para upload único ou em massa. 
-              Estritamente proibido o upload de dados 
-              da empresa ou outros arquivos proibidos.
+                Suporte para upload único ou em massa.
               </p>
             </Upload.Dragger>
           </Form.Item>
@@ -322,17 +342,16 @@ const ProductsPage = () => {
       >
         {" "}
         <Form form={editProductform} layout="vertical" onFinish={handleEdit}>
-          <Form.Item
-            name="title"
-            label="Titulo"
-            rules={[{ required: true }]}
-          >
+          <Form.Item name="title" label="Titulo" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="price" label="Preço" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item
-            name="price"
-            label="Preço"
-            rules={[{ required: true }]}
+            name="description"
+            label="Descrição"
+            rules={[{ required: true, type: "string" }]}
           >
             <Input />
           </Form.Item>

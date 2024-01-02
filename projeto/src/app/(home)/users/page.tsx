@@ -48,7 +48,7 @@ const UsersPage = () => {
     return null;
   }
 
-  const { isModalVisible, showModal, handleCancel } = modalContext;
+  const { isModalVisible, handleCancel } = modalContext;
 
   const handleSearch = async () => {
     if (search !== "") {
@@ -132,11 +132,12 @@ const UsersPage = () => {
   ];
 
   const handleOpenEdit = (user: User) => {
-    setToBeEdited(user);
+    form.setFieldsValue(user);
     setShowEdit(!showEdit);
   };
 
   const handleCancelEdit = () => {
+    form.resetFields();
     setShowEdit(!showEdit);
   };
 
