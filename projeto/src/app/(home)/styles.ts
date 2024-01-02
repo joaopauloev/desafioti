@@ -40,6 +40,7 @@ export const TabBox = styled.div`
 export const Header = styled.div`
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
   align-items: center;
   padding-left: 16px;
   font-weight: 800;

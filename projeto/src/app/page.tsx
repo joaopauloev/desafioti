@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Card, Input, Form, message, Button } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
@@ -7,7 +7,6 @@ import { useForm } from "antd/lib/form/Form";
 import { z } from "zod";
 import axios from "axios";
 import * as S from "./styles";
-import "./globals.css";
 import { ThemeProvider } from "styled-components";
 
 const theme = {
@@ -18,7 +17,7 @@ const theme = {
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
-  password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres"),
+  password: z.string().min(6),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -26,35 +25,34 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const [form] = useForm<LoginFormData>();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (values: LoginFormData) => {
-    const result = loginSchema.safeParse(values);
-    if (!result.success) {
-      // Se houver erros de validação, exiba-os.
-      result.error.errors.forEach((error) => {
-        form.setFields([
-          {
-            name: error.path[0],
-            errors: [error.message],
-          },
-        ]);
-      });
-      return;
-    }
-
     try {
+      setLoading(true);
+      const result = loginSchema.safeParse(values);
+      if (!result.success) {
+        form.setFields(
+          Object.entries(result.error.errors).map(([key, value]) => ({
+            name: key,
+            errors: [value.message]
+          }))
+        );
+        return;
+      }
       const response = await axios.post(
         "https://api.escuelajs.co/api/v1/auth/login",
         values
       );
 
-      localStorage.setItem("token", response.data.access_token);
-      localStorage.setItem("refresh_token", response.data.refresh_token);
-
+      localStorage.setItem('tokens', JSON.stringify(response.data));
       message.success("Login bem-sucedido!");
-      console.log("Resposta da API:", response.data);
-      router.push("/home");
+      setLoading(false);
+
+      router.push("/users");
     } catch (error) {
+      setLoading(false);
+
       message.error("Erro no login");
       console.error("Erro:", error);
     }
@@ -87,7 +85,7 @@ export default function LoginPage() {
               <Input.Password prefix={<LockOutlined />} placeholder="Senha" />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit">
+              <Button type="primary" htmlType="submit" loading={loading}>
                 Login
               </Button>
             </Form.Item>

@@ -8,6 +8,6 @@ export const UsersMainBody = styled.div`
   gap: 15px;
 
   .ant-input{
-    width: 350px !important;
+    width: 200px !important;
   }
 `;
